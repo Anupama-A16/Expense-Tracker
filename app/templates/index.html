@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Expense Tracker</title>
+</head>
+
+<body>
+
+    <h1>Expense Tracker</h1>
+
+    <!-- Add Expense -->
+    <h2>Add Expense</h2>
+
+    <form method="POST" action="/add">
+
+        <label>Title:</label>
+        <input type="text" name="title" required>
+
+        <br><br>
+
+        <label>Amount:</label>
+        <input type="number" name="amount" step="0.01" required>
+
+        <br><br>
+
+        <label>Category:</label>
+        <input type="text" name="category" required>
+
+        <br><br>
+
+        <button type="submit">Add Expense</button>
+
+    </form>
+
+    <hr>
+
+    <!-- Display Expenses -->
+    <h2>Expenses</h2>
+
+    {% if expenses %}
+
+    <table border="1" cellpadding="10">
+
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Amount</th>
+            <th>Category</th>
+            <th>Actions</th>
+        </tr>
+
+        {% for expense in expenses %}
+
+        <tr>
+
+            <td>{{ expense[0] }}</td>
+            <td>{{ expense[1] }}</td>
+            <td>₹{{ expense[2] }}</td>
+            <td>{{ expense[3] }}</td>
+
+            <td>
+
+                <!-- Edit Button -->
+                <a href="/edit/{{ expense[0] }}">
+                    <button type="button">Edit</button>
+                </a>
+
+                <!-- Delete Button -->
+                <a href="/delete/{{ expense[0] }}">
+                    <button type="button">Delete</button>
+                </a>
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+    {% else %}
+
+    <p>No expenses found.</p>
+
+    {% endif %}
+
+</body>
+</html>

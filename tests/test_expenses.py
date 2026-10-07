@@ -1,11 +1,11 @@
-def test_expense_calculation():
+from app.main import app
 
-    expenses = [
-        {"amount": 100},
-        {"amount": 200},
-        {"amount": 50}
-    ]
 
-    total = sum(expense["amount"] for expense in expenses)
+def test_home_page():
+    app.config["TESTING"] = True
 
-    assert total == 350
+    client = app.test_client()
+
+    response = client.get("/")
+
+    assert response.status_code == 200

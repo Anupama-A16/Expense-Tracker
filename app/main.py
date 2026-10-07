@@ -1,42 +1,64 @@
-from expenses import (
-    add_expense,
-    view_expenses,
-    update_expense,
-    delete_expense,
-    expense_summary
+from flask import Flask, render_template, request, redirect
+
+from app.expenses import (
+    add_expense_to_database,
+    get_all_expenses,
+    delete_expense_from_database,
+    update_expense_in_database
 )
 
-print("\n===== Expense Tracker =====")
+app = Flask(__name__)
 
-while True:
 
-    print("\n1. Add Expense")
-    print("2. View Expenses")
-    print("3. Update Expense")
-    print("4. Delete Expense")
-    print("5. Expense Summary")
-    print("6. Exit")
+@app.route("/")
+def home():
+    expenses = get_all_expenses()
+    return render_template("index.html", expenses=expenses)
 
-    choice = input("Enter your choice: ")
 
-    if choice == "1":
-        add_expense()
+@app.route("/add", methods=["POST"])
+def add():
+    title = request.form["title"]
+    amount = float(request.form["amount"])
+    category = request.form["category"]
 
-    elif choice == "2":
-        view_expenses()
+    add_expense_to_database(title, amount, category)
 
-    elif choice == "3":
-        update_expense()
+    return redirect("/")
 
-    elif choice == "4":
-        delete_expense()
+@app.route("/edit/<int:expense_id>")
+def edit(expense_id):
+    expenses = get_all_expenses()
 
-    elif choice == "5":
-        expense_summary()
+    for expense in expenses:
+        if expense[0] == expense_id:
+            return render_template("edit.html", expense=expense)
 
-    elif choice == "6":
-        print("Thank you for using Expense Tracker!")
-        break
+    return "Expense not found", 404
 
-    else:
-        print("Invalid choice. Please try again.")
+
+@app.route("/update/<int:expense_id>", methods=["POST"])
+def update(expense_id):
+    title = request.form["title"]
+    amount = float(request.form["amount"])
+    category = request.form["category"]
+
+    update_expense_in_database(
+        expense_id,
+        title,
+        amount,
+        category
+    )
+
+    return redirect("/")
+
+
+@app.route("/delete/<int:expense_id>")
+def delete(expense_id):
+    delete_expense_from_database(expense_id)
+
+    return redirect("/")
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
