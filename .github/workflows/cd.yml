@@ -1,0 +1,102 @@
+name: Deploy Expense Tracker
+
+on:
+  workflow_run:
+    workflows:
+      - Python CI
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+
+  deploy:
+
+    # Deploy only when CI completed successfully
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # -----------------------------------------
+      # 1. Checkout the code
+      # -----------------------------------------
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+
+      # -----------------------------------------
+      # 2. Set up Python
+      # -----------------------------------------
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+
+      # -----------------------------------------
+      # 3. Install dependencies
+      # -----------------------------------------
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+
+      # -----------------------------------------
+      # 4. Login to Azure
+      # -----------------------------------------
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+
+      # -----------------------------------------
+      # 5. Deploy Azure infrastructure
+      # -----------------------------------------
+
+      - name: Deploy Azure infrastructure
+        env:
+          MYSQL_ADMIN_PASSWORD: ${{ secrets.MYSQL_ADMIN_PASSWORD }}
+          LOCATION: eastus
+
+        run: |
+          az deployment sub create \
+            --name expense-dev-deployment \
+            --location eastus \
+            --template-file infra/main.bicep \
+            --parameters infra/dev.bicepparam
+
+
+      # -----------------------------------------
+      # 6. Get App Service name
+      # -----------------------------------------
+
+      - name: Get App Service name
+        run: |
+          APP_NAME=$(az deployment sub show \
+            --name expense-dev-deployment \
+            --query properties.outputs.webAppName.value \
+            --output tsv)
+
+          echo "APP_NAME=$APP_NAME" >> $GITHUB_ENV
+
+
+      # -----------------------------------------
+      # 7. Deploy Flask application
+      # -----------------------------------------
+
+      - name: Deploy application
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.APP_NAME }}
+          package: .
