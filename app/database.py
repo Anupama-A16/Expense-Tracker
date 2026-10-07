@@ -4,10 +4,10 @@ import mysql.connector
 
 def get_connection():
     connection = mysql.connector.connect(
-        host="localhost",
-        user="root",
+        host=os.getenv("MYSQL_HOST"),
+        user=os.getenv("MYSQL_USER"),
         password=os.getenv("MYSQL_PASSWORD"),
-        database="expense_tracker"
+        database=os.getenv("MYSQL_DATABASE")
     )
 
     return connection
