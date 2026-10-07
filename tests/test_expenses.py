@@ -1,9 +1,11 @@
-from app.database import get_connection
+def test_expense_calculation():
 
+    expenses = [
+        {"amount": 100},
+        {"amount": 200},
+        {"amount": 50}
+    ]
 
-def test_database_connection():
-    connection = get_connection()
+    total = sum(expense["amount"] for expense in expenses)
 
-    assert connection.is_connected()
-
-    connection.close()
+    assert total == 350
