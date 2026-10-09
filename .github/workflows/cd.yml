@@ -67,12 +67,12 @@ jobs:
       - name: Deploy Azure infrastructure
         env:
           MYSQL_ADMIN_PASSWORD: ${{ secrets.MYSQL_ADMIN_PASSWORD }}
-          LOCATION: eastus
+          LOCATION: southeastasia
 
         run: |
           az deployment sub create \
             --name expense-dev-deployment \
-            --location eastus \
+            --location southeastasia \
             --template-file infra/main.bicep \
             --parameters infra/dev.bicepparam
 

@@ -4,7 +4,7 @@ param workloadName = 'expense'
 
 param environment = 'dev'
 
-param location = readEnvironmentVariable('LOCATION', 'eastus')
+param location = readEnvironmentVariable('LOCATION', 'southeastasia')
 
 param mysqlAdminUsername = 'expenseadmin'
 

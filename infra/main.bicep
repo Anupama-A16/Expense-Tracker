@@ -14,7 +14,7 @@ param workloadName string = 'expense'
 param environment string = 'dev'
 
 @description('Azure region where resources will be deployed.')
-param location string = 'eastus'
+param location string = 'southeastasia'
 
 @description('Name of the Resource Group.')
 param resourceGroupName string = 'rg-${workloadName}-${environment}'
